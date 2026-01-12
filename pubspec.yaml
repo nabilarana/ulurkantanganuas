@@ -35,6 +35,18 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # HTTP
+  http: ^1.1.0
+  
+  # Local Storage
+  shared_preferences: ^2.2.2
+  
+  # Date Formatting
+  intl: ^0.18.1
+  
+  # Image Picker 
+  image_picker: ^1.0.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
