@@ -67,4 +67,24 @@ class ApiService {
       throw Exception('Error PUT request: $e');
     }
   }
+
+  Future<http.Response> delete(String endpoint) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+
+    try {
+      final response = await http
+          .delete(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(timeout);
+
+      return response;
+    } catch (e) {
+      throw Exception('Error DELETE request: $e');
+    }
+  }
 }
