@@ -46,4 +46,25 @@ class ApiService {
       throw Exception('Error POST request: $e');
     }
   }
+
+  Future<http.Response> put(String endpoint, Map<String, dynamic> body) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+
+    try {
+      final response = await http
+          .put(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(timeout);
+
+      return response;
+    } catch (e) {
+      throw Exception('Error PUT request: $e');
+    }
+  }
 }
