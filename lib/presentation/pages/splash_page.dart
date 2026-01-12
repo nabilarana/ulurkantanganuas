@@ -50,6 +50,28 @@ class _SplashPageState extends State<SplashPage> {
                 color: Colors.green,
               ),
             ),
+            const SizedBox(height: 24),
+
+            const Text(
+              'Ulurkan Tangan',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 1.2,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'Platform Donasi Terpercaya',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white70,
+                letterSpacing: 0.5,
+              ),
+            ),
           ],
         ),
       ),
