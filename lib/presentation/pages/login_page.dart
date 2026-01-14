@@ -23,7 +23,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-    print('Login clicked');
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    print('Validasi berhasil!');
+    print('Email: ${_emailController.text}');
+    print('Password: ${_passwordController.text}');
   }
 
   @override
