@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ulurkantanganuas/data/server/service/session_manager.dart';
+import 'package:ulurkantanganuas/presentation/pages/login_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -22,10 +23,15 @@ class _SplashPageState extends State<SplashPage> {
 
     final isLoggedIn = await SessionManager.isLoggedIn();
 
-    if (isLoggedIn) {
-      print('User sudah login → Home');
-    } else {
-      print('User belum login → Login');
+    if (mounted) {
+      if (isLoggedIn) {
+        print('User sudah login → Home');
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
     }
   }
 
