@@ -23,3 +23,23 @@ class GetAllCampaignResponse {
     );
   }
 }
+
+class GetCampaignDetailResponse {
+  final String status;
+  final String message;
+  final Campaign? data;
+
+  GetCampaignDetailResponse({
+    required this.status,
+    required this.message,
+    this.data,
+  });
+
+  factory GetCampaignDetailResponse.fromJson(Map<String, dynamic> json) {
+    return GetCampaignDetailResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      data: json['data'] != null ? Campaign.fromJson(json['data']) : null,
+    );
+  }
+}
