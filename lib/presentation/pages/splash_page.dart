@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ulurkantanganuas/data/server/service/session_manager.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -11,15 +12,21 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _navigateToLogin();
+    _checkSession();
   }
 
-  Future<void> _navigateToLogin() async {
+  Future<void> _checkSession() async {
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
 
-    print('Navigating to login...');
+    final isLoggedIn = await SessionManager.isLoggedIn();
+
+    if (isLoggedIn) {
+      print('User sudah login → Home');
+    } else {
+      print('User belum login → Login');
+    }
   }
 
   @override
