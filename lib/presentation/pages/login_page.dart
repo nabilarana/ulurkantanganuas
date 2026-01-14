@@ -77,6 +77,15 @@ class _LoginPageState extends State<LoginPage> {
                           hintText: 'contoh@email.com',
                           prefixIcon: Icon(Icons.email_outlined),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Email tidak boleh kosong';
+                          }
+                          if (!value.contains('@')) {
+                            return 'Email tidak valid';
+                          }
+                          return null;
+                        },
                       ),
 
                       const SizedBox(height: 16),
