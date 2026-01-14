@@ -48,4 +48,8 @@ class AuthRepository {
       throw Exception('Error register: $e');
     }
   }
+
+  Future<void> logout() async {
+    await SessionManager.clearSession();
+  }
 }
