@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:ulurkantanganuas/data/server/service/api_service.dart';
 import 'package:ulurkantanganuas/data/server/service/session_manager.dart';
 import 'package:ulurkantanganuas/domain/usecase/request/login_request.dart';
+import 'package:ulurkantanganuas/domain/usecase/request/register_request.dart';
 import 'package:ulurkantanganuas/domain/usecase/response/auth_response.dart';
 
 class AuthRepository {
@@ -29,6 +30,22 @@ class AuthRepository {
     } catch (e) {
       log('❌ Error login: $e');
       throw Exception('Error login: $e');
+    }
+  }
+
+  Future<AuthResponse> register(RegisterRequest request) async {
+    try {
+      log('📤 Register request: ${request.toJson()}');
+
+      final response = await apiService.post('register', request.toJson());
+
+      log('📥 Response status: ${response.statusCode}');
+      log('📥 Response body: ${response.body}');
+
+      return AuthResponse.fromJson(jsonDecode(response.body));
+    } catch (e) {
+      log('❌ Error register: $e');
+      throw Exception('Error register: $e');
     }
   }
 }
