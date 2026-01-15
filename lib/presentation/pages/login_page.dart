@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ulurkantanganuas/data/server/service/api_service.dart';
+import 'package:ulurkantanganuas/data/repository/auth_repository.dart';
+import 'package:ulurkantanganuas/domain/usecase/request/login_request.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,6 +18,8 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
+  final _authRepository = AuthRepository(ApiService());
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -27,9 +32,46 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    print('Validasi berhasil!');
-    print('Email: ${_emailController.text}');
-    print('Password: ${_passwordController.text}');
+    setState(() => _isLoading = true);
+
+    try {
+      final request = LoginRequest(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      final response = await _authRepository.login(request);
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+
+        if (response.status == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Selamat datang, ${response.data?.nama ?? "User"}!',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response.message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   @override
