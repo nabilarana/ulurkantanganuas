@@ -1,10 +1,11 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:ulurkantanganuas/data/server/service/api_service.dart';
 import 'package:ulurkantanganuas/data/repository/auth_repository.dart';
 import 'package:ulurkantanganuas/domain/usecase/request/register_request.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -12,17 +13,18 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
+
   final _namaController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _teleponController = TextEditingController();
 
+  final _authRepository = AuthRepository(ApiService());
+
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-
-  final _authRepository = AuthRepository(ApiService());
 
   @override
   void dispose() {
@@ -35,19 +37,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _register() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password tidak sama'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
@@ -56,40 +46,44 @@ class _RegisterPageState extends State<RegisterPage> {
         nama: _namaController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        telepon: _teleponController.text.trim().isNotEmpty
-            ? _teleponController.text.trim()
-            : null,
+        confirmPassword: _confirmPasswordController.text,
+        noTelepon: _teleponController.text.trim(),
       );
 
       final response = await _authRepository.register(request);
 
-      if (mounted) {
-        setState(() => _isLoading = false);
+      if (!mounted) return;
 
-        if (response.status == 'success') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registrasi berhasil! Silakan login'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.message),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+      if (response.status == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.message),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.message),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
+      log('Error register: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
       if (mounted) {
         setState(() => _isLoading = false);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
       }
     }
   }
@@ -97,7 +91,11 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Akun')),
+      appBar: AppBar(
+        title: const Text('Daftar Akun'),
+        backgroundColor: const Color(0xFF2E7D32),
+        foregroundColor: Colors.white,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -108,24 +106,20 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 const Text(
                   'Buat Akun Baru',
+                  textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-
-                const SizedBox(height: 8),
-
-                const Text(
-                  'Daftar untuk mulai berdonasi',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
 
                 const SizedBox(height: 32),
 
-                // Nama
                 TextFormField(
                   controller: _namaController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Nama Lengkap',
-                    prefixIcon: Icon(Icons.person_outline),
+                    prefixIcon: const Icon(Icons.person_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -140,20 +134,23 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 16),
 
-                // Email
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Email tidak boleh kosong';
                     }
-                    if (!value.contains('@')) {
-                      return 'Email tidak valid';
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
+                      return 'Format email tidak valid';
                     }
                     return null;
                   },
@@ -161,19 +158,20 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 16),
 
-                // Telepon
                 TextFormField(
                   controller: _teleponController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Nomor Telepon (Opsional)',
-                    prefixIcon: Icon(Icons.phone_outlined),
+                  decoration: InputDecoration(
+                    labelText: 'No Telepon (Opsional)',
+                    prefixIcon: const Icon(Icons.phone_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 16),
 
-                // Password
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -187,8 +185,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             : Icons.visibility_off_outlined,
                       ),
                       onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
                       },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   validator: (value) {
@@ -204,7 +207,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 16),
 
-                // Confirm Password
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
@@ -218,11 +220,14 @@ class _RegisterPageState extends State<RegisterPage> {
                             : Icons.visibility_off_outlined,
                       ),
                       onPressed: () {
-                        setState(
-                          () => _obscureConfirmPassword =
-                              !_obscureConfirmPassword,
-                        );
+                        setState(() {
+                          _obscureConfirmPassword =
+                              !_obscureConfirmPassword;
+                        });
                       },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   validator: (value) {
@@ -238,7 +243,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 32),
 
-                // Button
                 SizedBox(
                   height: 50,
                   child: ElevatedButton(
@@ -270,7 +274,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     const Text('Sudah punya akun? '),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Masuk'),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2E7D32),
+                        ),
+                      ),
                     ),
                   ],
                 ),
