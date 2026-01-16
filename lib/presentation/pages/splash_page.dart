@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ulurkantanganuas/data/server/service/session_manager.dart';
 import 'package:ulurkantanganuas/presentation/pages/login_page.dart';
+import 'package:ulurkantanganuas/presentation/pages/home_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -17,23 +18,25 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _checkSession() async {
-    await Future.delayed(const Duration(seconds: 2));
+  await Future.delayed(const Duration(seconds: 2));
 
-    if (!mounted) return;
+  if (!mounted) return;
 
-    final isLoggedIn = await SessionManager.isLoggedIn();
+  final token = await SessionManager.getToken();
+  final isLoggedIn = token != null && token.isNotEmpty;
 
-    if (mounted) {
-      if (isLoggedIn) {
-        print('User sudah login → Home');
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
-      }
-    }
+  if (isLoggedIn) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
+  } else {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
