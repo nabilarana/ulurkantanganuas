@@ -30,7 +30,6 @@ class CampaignCardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
               child: campaign.fotoUtama != null
@@ -54,13 +53,12 @@ class CampaignCardWidget extends StatelessWidget {
                     ),
             ),
 
-            // Content
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
+
                   Text(
                     campaign.judul,
                     style: const TextStyle(
@@ -72,7 +70,7 @@ class CampaignCardWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
 
-                  // Description
+
                   Text(
                     campaign.deskripsi,
                     style: TextStyle(
@@ -84,7 +82,7 @@ class CampaignCardWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // Progress Bar
+
                   LinearProgressIndicator(
                     value: campaign.progressPercentage / 100,
                     backgroundColor: Colors.grey[300],
@@ -92,7 +90,7 @@ class CampaignCardWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Stats
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
