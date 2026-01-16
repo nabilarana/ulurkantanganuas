@@ -7,30 +7,34 @@ use Illuminate\Database\Eloquent\Model;
 class Kampanye extends Model
 {
     protected $table = 'kampanye';
+    public $timestamps = false;
     
     protected $fillable = [
-        'judul', 'deskripsi', 'kategori', 
-        'target_dana', 'dana_terkumpul', 
-        'url_gambar', 'status', 'dibuat_oleh'
+        'judul',
+        'deskripsi',
+        'kategori',
+        'target_dana',
+        'dana_terkumpul',
+        'url_gambar',
+        'status',
+        'dibuat_oleh'
     ];
 
     protected $casts = [
         'target_dana' => 'decimal:2',
         'dana_terkumpul' => 'decimal:2',
-        'dibuat_pada' => 'datetime',
-        'diperbarui_pada' => 'datetime',
     ];
 
-    const CREATED_AT = 'dibuat_pada';
-    const UPDATED_AT = 'diperbarui_pada';
+    protected $appends = ['persentase', 'sisa_dana'];
 
-    public function user()
+    public function getPersentaseAttribute()
     {
-        return $this->belongsTo(User::class, 'dibuat_oleh');
+        if ($this->target_dana == 0) return 0;
+        return round(($this->dana_terkumpul / $this->target_dana) * 100, 2);
     }
 
-    public function donasi()
+    public function getSisaDanaAttribute()
     {
-        return $this->hasMany(Donasi::class, 'id_kampanye');
+        return max(0, $this->target_dana - $this->dana_terkumpul);
     }
 }

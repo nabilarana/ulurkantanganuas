@@ -9,8 +9,12 @@ class RiwayatDonasi extends Model
     protected $table = 'riwayat_donasi';
     
     protected $fillable = [
-        'id_user', 'id_donasi', 'id_kampanye',
-        'jumlah', 'pesan', 'anonim'
+        'id_pengguna',
+        'id_donasi',
+        'id_kampanye',
+        'jumlah',
+        'pesan',
+        'anonim'
     ];
 
     protected $casts = [
@@ -21,6 +25,16 @@ class RiwayatDonasi extends Model
 
     const CREATED_AT = 'dibuat_pada';
     const UPDATED_AT = null;
+
+    public function pengguna()
+    {
+        return $this->belongsTo(Pengguna::class, 'id_pengguna');
+    }
+
+    public function donasi()
+    {
+        return $this->belongsTo(Donasi::class, 'id_donasi');
+    }
 
     public function kampanye()
     {

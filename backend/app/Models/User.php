@@ -4,12 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class User_error extends Model
+class Pengguna extends Model
 {
-    protected $table = 'user_error';
+    protected $table = 'pengguna';
     
     protected $fillable = [
-        'nama', 'email', 'password', 'telepon', 'foto_profil'
+        'nama', 
+        'email', 
+        'password', 
+        'telepon', 
+        'foto_profil'
     ];
 
     protected $hidden = ['password'];
@@ -29,6 +33,11 @@ class User_error extends Model
 
     public function donasi()
     {
-        return $this->hasMany(Donasi::class, 'id_user_error');
+        return $this->hasMany(Donasi::class, 'id_pengguna');
+    }
+
+    public function riwayatDonasi()
+    {
+        return $this->hasMany(RiwayatDonasi::class, 'id_pengguna');
     }
 }
