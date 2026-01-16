@@ -1,55 +1,55 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:ulurkantanganuas/data/server/service/api_service.dart';
-import 'package:ulurkantanganuas/data/server/service/session_manager.dart';
 import 'package:ulurkantanganuas/domain/usecase/request/login_request.dart';
 import 'package:ulurkantanganuas/domain/usecase/request/register_request.dart';
-import 'package:ulurkantanganuas/domain/usecase/response/auth_response.dart';
+import 'package:ulurkantanganuas/domain/usecase/response/login_response.dart';
 
 class AuthRepository {
   final ApiService apiService;
 
   AuthRepository(this.apiService);
 
-  Future<AuthResponse> login(LoginRequest request) async {
+  Future<LoginResponse> login(LoginRequest request) async {
     try {
-      log('📤 Login request: ${request.toJson()}');
+      final response = await apiService.post('auth/login', request.toMap());
 
-      final response = await apiService.post('login', request.toJson());
-
-      log('📥 Response status: ${response.statusCode}');
-      log('📥 Response body: ${response.body}');
-
-      final authResponse = AuthResponse.fromJson(jsonDecode(response.body));
-
-      if (authResponse.status == 'success' && authResponse.data != null) {
-        await SessionManager.saveSession(authResponse.data, null);
+      if (response.statusCode == 200) {
+        final responseData = LoginResponse.fromJson(response.body);
+        return responseData;
+      } else {
+        final errorResponse = LoginResponse.fromJson(response.body);
+        return errorResponse;
       }
-
-      return authResponse;
     } catch (e) {
-      log('❌ Error login: $e');
+      log('Error login: $e');
       throw Exception('Error login: $e');
     }
   }
 
-  Future<AuthResponse> register(RegisterRequest request) async {
+  Future<LoginResponse> register(RegisterRequest request) async {
     try {
-      log('📤 Register request: ${request.toJson()}');
+      final response = await apiService.post('auth/register', request.toMap());
 
-      final response = await apiService.post('register', request.toJson());
-
-      log('📥 Response status: ${response.statusCode}');
-      log('📥 Response body: ${response.body}');
-
-      return AuthResponse.fromJson(jsonDecode(response.body));
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = LoginResponse.fromJson(response.body);
+        return responseData;
+      } else {
+        final errorResponse = LoginResponse.fromJson(response.body);
+        return errorResponse;
+      }
     } catch (e) {
-      log('❌ Error register: $e');
+      log('Error register: $e');
       throw Exception('Error register: $e');
     }
   }
 
-  Future<void> logout() async {
-    await SessionManager.clearSession();
+  Future<bool> logout() async {
+    try {
+      final response = await apiService.post('auth/logout', {});
+      return response.statusCode == 200;
+    } catch (e) {
+      log('Error logout: $e');
+      return false;
+    }
   }
 }
