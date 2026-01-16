@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ulurkantanganuas/data/server/service/api_service.dart';
 import 'package:ulurkantanganuas/data/repository/auth_repository.dart';
 import 'package:ulurkantanganuas/domain/usecase/request/login_request.dart';
+import 'package:ulurkantanganuas/presentation/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -192,6 +193,30 @@ class _LoginPageState extends State<LoginPage> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RegisterPage(),
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(color: Colors.green),
+                        ),
+                        child: const Text(
+                          'Daftar Akun Baru',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],

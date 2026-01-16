@@ -1,4 +1,4 @@
-import 'package:ulurkantanganuas/data/server/model/kampanye.dart';
+import 'package:ulurkantanganuas/data/server/model/campaign.dart';
 
 class GetAllCampaignResponse {
   final String status;
