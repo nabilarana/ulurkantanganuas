@@ -2,21 +2,21 @@ class RegisterRequest {
   final String nama;
   final String email;
   final String password;
-  final String? telepon;
+  final String? noTelepon;
 
   RegisterRequest({
     required this.nama,
     required this.email,
     required this.password,
-    this.telepon,
+    this.noTelepon,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
       'nama': nama,
       'email': email,
       'password': password,
-      'telepon': telepon,
+      'no_telepon': noTelepon ?? '',
     };
   }
 }
