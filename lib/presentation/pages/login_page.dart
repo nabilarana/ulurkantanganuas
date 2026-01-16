@@ -1,11 +1,14 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:ulurkantanganuas/data/server/service/api_service.dart';
 import 'package:ulurkantanganuas/data/repository/auth_repository.dart';
+import 'package:ulurkantanganuas/data/server/service/api_service.dart';
+import 'package:ulurkantanganuas/data/server/service/session_manager.dart';
 import 'package:ulurkantanganuas/domain/usecase/request/login_request.dart';
+import 'package:ulurkantanganuas/presentation/pages/home_page.dart';
 import 'package:ulurkantanganuas/presentation/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -15,11 +18,10 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authRepository = AuthRepository(ApiService());
 
   bool _isLoading = false;
   bool _obscurePassword = true;
-
-  final _authRepository = AuthRepository(ApiService());
 
   @override
   void dispose() {
@@ -28,56 +30,68 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+ Future<void> _login() async {
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+  setState(() => _isLoading = true);
 
-    try {
-      final request = LoginRequest(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+  try {
+    final request = LoginRequest(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
+
+    final response = await _authRepository.login(request);
+
+    if (!mounted) return;
+
+    if (response.status == 'success' && response.data != null) {
+      await SessionManager.saveSession(
+        response.data!.user,
+        response.data!.token,
       );
 
-      final response = await _authRepository.login(request);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.message),
+          backgroundColor: Colors.green,
+        ),
+      );
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-
-        if (response.status == 'success') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Selamat datang, ${response.data?.nama ?? "User"}!',
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.message),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.message),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  } catch (e) {
+    log('Error login: $e');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
+  
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -98,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 40),
 
                 const Text(
                   'Selamat Datang',
