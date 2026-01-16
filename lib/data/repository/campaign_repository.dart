@@ -1,7 +1,7 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:ulurkantanganuas/data/server/service/api_service.dart';
-import 'package:ulurkantanganuas/domain/usecase/response/campaign_response.dart';
+import 'package:ulurkantanganuas/domain/usecase/response/get_all_campaign_response.dart';
+import 'package:ulurkantanganuas/domain/usecase/response/get_detail_campaign_response.dart';
 
 class CampaignRepository {
   final ApiService apiService;
@@ -10,39 +10,35 @@ class CampaignRepository {
 
   Future<GetAllCampaignResponse> getAllCampaigns() async {
     try {
-      log('📤 Getting all campaigns');
-
       final response = await apiService.get('campaigns');
 
-      log('📥 Response status: ${response.statusCode}');
-
       if (response.statusCode == 200) {
-        return GetAllCampaignResponse.fromJson(jsonDecode(response.body));
+        final responseData = GetAllCampaignResponse.fromJson(response.body);
+        return responseData;
       } else {
-        throw Exception('Failed to load campaigns');
+        final errorResponse = GetAllCampaignResponse.fromJson(response.body);
+        return errorResponse;
       }
     } catch (e) {
-      log('❌ Error getting campaigns: $e');
-      throw Exception('Error: $e');
+      log('Error getting campaigns: $e');
+      throw Exception('Error getting campaigns: $e');
     }
   }
 
-  Future<GetCampaignDetailResponse> getCampaignDetail(int id) async {
+  Future<GetDetailCampaignResponse> getCampaignDetail(int id) async {
     try {
-      log('📤 Getting campaign detail: $id');
-
       final response = await apiService.get('campaigns/$id');
 
-      log('📥 Response status: ${response.statusCode}');
-
       if (response.statusCode == 200) {
-        return GetCampaignDetailResponse.fromJson(jsonDecode(response.body));
+        final responseData = GetDetailCampaignResponse.fromJson(response.body);
+        return responseData;
       } else {
-        throw Exception('Failed to load campaign detail');
+        final errorResponse = GetDetailCampaignResponse.fromJson(response.body);
+        return errorResponse;
       }
     } catch (e) {
-      log('❌ Error getting campaign detail: $e');
-      throw Exception('Error: $e');
+      log('Error getting campaign detail: $e');
+      throw Exception('Error getting campaign detail: $e');
     }
   }
 }
