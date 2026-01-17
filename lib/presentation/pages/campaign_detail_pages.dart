@@ -10,10 +10,8 @@ import 'package:ulurkantanganuas/shared/widget/custom_button.dart';
 class CampaignDetailPage extends StatefulWidget {
   final int campaignId;
 
-  const CampaignDetailPage({
-    Key? key,
-    required this.campaignId,
-  }) : super(key: key);
+  const CampaignDetailPage({Key? key, required this.campaignId})
+    : super(key: key);
 
   @override
   State<CampaignDetailPage> createState() => _CampaignDetailPageState();
@@ -42,21 +40,20 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         });
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(response.message)));
         }
       }
     } catch (e) {
       log('Error loading campaign detail: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
-      if (mounted)
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -77,30 +74,19 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _campaign == null
-              ? const Center(child: Text('Campaign tidak ditemukan'))
-              : SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _campaign!.fotoUtama != null
-                          ? Image.network(
-                              _campaign!.fotoUtama!,
-                              height: 250,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 250,
-                                  color: Colors.grey[300],
-                                  child: const Icon(
-                                    Icons.image,
-                                    size: 80,
-                                    color: Colors.grey,
-                                  ),
-                                );
-                              },
-                            )
-                          : Container(
+          ? const Center(child: Text('Campaign tidak ditemukan'))
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _campaign!.fotoUtama != null
+                      ? Image.network(
+                          _campaign!.fotoUtama!,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
                               height: 250,
                               color: Colors.grey[300],
                               child: const Icon(
@@ -108,146 +94,154 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                                 size: 80,
                                 color: Colors.grey,
                               ),
-                            ),
+                            );
+                          },
+                        )
+                      : Container(
+                          height: 250,
+                          color: Colors.grey[300],
+                          child: const Icon(
+                            Icons.image,
+                            size: 80,
+                            color: Colors.grey,
+                          ),
+                        ),
 
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _campaign!.judul,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _campaign!.judul,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (_campaign!.categoryName != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[100],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              _campaign!.categoryName!,
+                              style: TextStyle(
+                                color: Colors.blue[900],
+                                fontSize: 12,
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            if (_campaign!.categoryName != null)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue[100],
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  _campaign!.categoryName!,
+                          ),
+                        const SizedBox(height: 20),
+
+                        LinearProgressIndicator(
+                          value: _campaign!.progressPercentage / 100,
+                          backgroundColor: Colors.grey[300],
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFF2E7D32),
+                          ),
+                          minHeight: 8,
+                        ),
+                        const SizedBox(height: 16),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Terkumpul',
                                   style: TextStyle(
-                                    color: Colors.blue[900],
-                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontSize: 14,
                                   ),
                                 ),
-                              ),
-                            const SizedBox(height: 20),
-
-      
-                            LinearProgressIndicator(
-                              value: _campaign!.progressPercentage / 100,
-                              backgroundColor: Colors.grey[300],
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                Color(0xFF2E7D32),
-                              ),
-                              minHeight: 8,
-                            ),
-                            const SizedBox(height: 16),
-
-       
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Terkumpul',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      currencyFormatter.format(
-                                        _campaign!.danaTerkumpul,
-                                      ),
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF2E7D32),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Text(
-                                      'Target',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      currencyFormatter.format(
-                                        _campaign!.targetDana,
-                                      ),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: 4),
+                                Text(
+                                  currencyFormatter.format(
+                                    _campaign!.danaTerkumpul,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2E7D32),
+                                  ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 24),
-
-                            const Text(
-                              'Deskripsi',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              _campaign!.deskripsi,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[700],
-                                height: 1.6,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-
-                            CustomButton(
-                              text: 'Donasi Sekarang',
-                              onPressed: () async {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DonationPage(
-                                      campaign: _campaign!,
-                                    ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  'Target',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
                                   ),
-                                );
-
-                                if (result == true) {
-                                  _loadCampaignDetail();
-                                }
-                              },
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  currencyFormatter.format(
+                                    _campaign!.targetDana,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 24),
+
+                        const Text(
+                          'Deskripsi',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _campaign!.deskripsi,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[700],
+                            height: 1.6,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        CustomButton(
+                          text: 'Donasi Sekarang',
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    DonationPage(campaign: _campaign!),
+                              ),
+                            );
+
+                            if (result == true) {
+                              _loadCampaignDetail();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
+              ),
+            ),
     );
   }
 }
