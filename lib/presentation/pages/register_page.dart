@@ -46,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
         nama: _namaController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        confirmPassword: _confirmPasswordController.text,
+        confirmPasswor: _confirmPasswordController.text,
         noTelepon: _teleponController.text.trim(),
       );
 

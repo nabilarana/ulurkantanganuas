@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:ulurkantanganuas/data/repository/campaign_repository.dart';
 import 'package:ulurkantanganuas/data/server/model/campaign.dart';
 import 'package:ulurkantanganuas/data/server/service/api_service.dart';
-import 'package:ulurkantanganuas/presentation/campaign_detail_page.dart';
-import 'package:ulurkantanganuas/presentation/history_page.dart';
-import 'package:ulurkantanganuas/presentation/profile_page.dart';
-import 'package:ulurkantanganuas/shared/widget/campaign_card_widget.dart';
+import 'package:ulurkantanganuas/presentation/pages/campaign_detail_pages.dart';
+import 'package:ulurkantanganuas/presentation/pages/history_page.dart';
+import 'package:ulurkantanganuas/presentation/pages/profile_page.dart';
+import 'package:ulurkantanganuas/shared/widget/campaign_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -58,7 +58,6 @@ class _HomePageState extends State<HomePage> {
 
   void _onNavTap(int index) {
     if (index == 0) {
-      // Already on home
       return;
     } else if (index == 1) {
       Navigator.push(
@@ -85,7 +84,6 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // Search functionality
             },
           ),
         ],
