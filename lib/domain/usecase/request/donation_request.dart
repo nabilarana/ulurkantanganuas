@@ -1,4 +1,5 @@
 class DonationRequest {
+  final int userId;
   final int campaignId;
   final double amount;
   final String donorName;
@@ -7,6 +8,7 @@ class DonationRequest {
   final bool isAnonymous;
 
   DonationRequest({
+    required this.userId,
     required this.campaignId,
     required this.amount,
     required this.donorName,
@@ -15,14 +17,13 @@ class DonationRequest {
     required this.isAnonymous,
   });
 
-  Map<String, String> toMap() {
-    return <String, String>{
-      'campaign_id': campaignId.toString(),
-      'amount': amount.toString(),
-      'donor_name': donorName,
-      'donor_email': donorEmail ?? '',
-      'message': message ?? '',
-      'is_anonymous': isAnonymous ? '1' : '0',
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id_pengguna': userId,
+      'id_kampanye': campaignId,
+      'jumlah': amount,
+      'pesan': message ?? '',
+      'anonim': isAnonymous,
     };
   }
 }

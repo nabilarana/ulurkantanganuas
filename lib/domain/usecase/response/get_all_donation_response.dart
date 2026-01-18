@@ -27,10 +27,10 @@ class GetAllDonationResponse {
       );
 
   Map<String, dynamic> toMap() => {
-        "status": status,
-        "message": message,
-        "data": data?.toMap(),
-      };
+    "status": status,
+    "message": message,
+    "data": data?.toMap(),
+  };
 }
 
 class DonationSummary {
@@ -45,18 +45,28 @@ class DonationSummary {
   });
 
   factory DonationSummary.fromMap(Map<String, dynamic> json) => DonationSummary(
-        totalDonations: json["total_donations"],
-        totalAmount: (json["total_amount"] as num).toDouble(),
-        donations: List<DonationWithCampaign>.from(
-          json["donations"].map((x) => DonationWithCampaign.fromMap(x)),
-        ),
-      );
+    totalDonations: json["total_donations"] ?? 0,
+    totalAmount: _parseDouble(json["total_amount"]),
+    donations: json["donations"] != null
+        ? List<DonationWithCampaign>.from(
+            json["donations"].map((x) => DonationWithCampaign.fromMap(x)),
+          )
+        : [],
+  );
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0;
+    return (value as num).toDouble();
+  }
 
   Map<String, dynamic> toMap() => {
-        "total_donations": totalDonations,
-        "total_amount": totalAmount,
-        "donations": List<dynamic>.from(donations.map((x) => x.toMap())),
-      };
+    "total_donations": totalDonations,
+    "total_amount": totalAmount,
+    "donations": List<dynamic>.from(donations.map((x) => x.toMap())),
+  };
 }
 
 class DonationWithCampaign {
@@ -78,26 +88,37 @@ class DonationWithCampaign {
     required this.campaign,
   });
 
-  factory DonationWithCampaign.fromMap(Map<String, dynamic> json) =>
-      DonationWithCampaign(
-        id: json["id"],
-        amount: (json["amount"] as num).toDouble(),
-        donorName: json["donor_name"],
-        message: json["message"],
-        isAnonymous: json["is_anonymous"] ?? false,
-        createdAt: DateTime.parse(json["created_at"]),
-        campaign: CampaignInfo.fromMap(json["campaign"]),
-      );
+  factory DonationWithCampaign.fromMap(Map<String, dynamic> json) {
+    double parseAmount(dynamic value) {
+      if (value == null) return 0;
+      if (value is double) return value;
+      if (value is int) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? 0;
+      return (value as num).toDouble();
+    }
+
+    return DonationWithCampaign(
+      id: json["id"],
+      amount: parseAmount(json["amount"]),
+      donorName: json["donor_name"] ?? 'Anonymous',
+      message: json["message"],
+      isAnonymous: json["is_anonymous"] ?? false,
+      createdAt: json["created_at"] != null
+          ? DateTime.parse(json["created_at"])
+          : DateTime.now(),
+      campaign: CampaignInfo.fromMap(json["campaign"] ?? {}),
+    );
+  }
 
   Map<String, dynamic> toMap() => {
-        "id": id,
-        "amount": amount,
-        "donor_name": donorName,
-        "message": message,
-        "is_anonymous": isAnonymous,
-        "created_at": createdAt.toIso8601String(),
-        "campaign": campaign.toMap(),
-      };
+    "id": id,
+    "amount": amount,
+    "donor_name": donorName,
+    "message": message,
+    "is_anonymous": isAnonymous,
+    "created_at": createdAt.toIso8601String(),
+    "campaign": campaign.toMap(),
+  };
 }
 
 class CampaignInfo {
@@ -114,16 +135,16 @@ class CampaignInfo {
   });
 
   factory CampaignInfo.fromMap(Map<String, dynamic> json) => CampaignInfo(
-        id: json["id"],
-        title: json["title"],
-        imageUrl: json["image_url"],
-        category: json["category"],
-      );
+    id: json["id"],
+    title: json["title"],
+    imageUrl: json["image_url"],
+    category: json["category"],
+  );
 
   Map<String, dynamic> toMap() => {
-        "id": id,
-        "title": title,
-        "image_url": imageUrl,
-        "category": category,
-      };
+    "id": id,
+    "title": title,
+    "image_url": imageUrl,
+    "category": category,
+  };
 }

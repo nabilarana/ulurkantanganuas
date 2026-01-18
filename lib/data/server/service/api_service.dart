@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String baseUrl = 'http://192.168.18.169:8000/api';
+  final String baseUrl = 'http://127.0.0.1:8000/api';
 
   Future<http.Response> get(String endpoint) async {
     final url = Uri.parse('$baseUrl/$endpoint');
@@ -71,16 +71,53 @@ class ApiService {
 
   Future<http.Response> put(String endpoint, Map<String, dynamic> body) async {
     final url = Uri.parse('$baseUrl/$endpoint');
+    // Use form-encoded data instead of JSON for Laravel form validation
     final response = await http.put(
       url,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
       },
-      body: jsonEncode(body),
+      body: body,
     );
     log('PUT Response: ${response.body}');
     return response;
+  }
+
+  Future<http.Response> putWithFile(
+    String endPoint,
+    Map<String, String> fields,
+    File? file,
+    String fileFieldName,
+  ) async {
+    try {
+      final url = Uri.parse('$baseUrl/$endPoint');
+      final request = http.MultipartRequest('PUT', url);
+
+      request.fields.addAll(fields);
+
+      if (file != null) {
+        final imageFile = await http.MultipartFile.fromPath(
+          fileFieldName,
+          file.path,
+        );
+        request.files.add(imageFile);
+        log('File added: ${file.path}');
+      }
+
+      log('PUT with File to: $url');
+      log('Fields: ${request.fields}');
+      log('Files: ${request.files.length}');
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      log('PUT with File Response: ${response.statusCode} - ${response.body}');
+      return response;
+    } catch (e) {
+      log('Error in putWithFile: $e');
+      rethrow;
+    }
   }
 
   Future<http.Response> delete(String endpoint) async {

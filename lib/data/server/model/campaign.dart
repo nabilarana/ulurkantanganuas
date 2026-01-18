@@ -29,12 +29,22 @@ class Campaign {
     id: json["id"],
     judul: json["judul"],
     deskripsi: json["deskripsi"],
-    fotoUtama: json["foto_utama"],
-    targetDana: (json["target_dana"] as num).toDouble(),
-    danaTerkumpul: (json["dana_terkumpul"] as num).toDouble(),
-    categoryName: json["category_name"],
-    createdAt: DateTime.parse(json["created_at"]),
+    fotoUtama: json["foto_utama"] ?? json["url_gambar"],
+    targetDana: _parseDouble(json["target_dana"]),
+    danaTerkumpul: _parseDouble(json["dana_terkumpul"]),
+    categoryName: json["category_name"] ?? json["kategori"],
+    createdAt: json["created_at"] != null
+        ? DateTime.parse(json["created_at"])
+        : DateTime.now(),
   );
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0;
+    return (value as num).toDouble();
+  }
 
   Map<String, dynamic> toMap() => {
     "id": id,

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Donasi;
 use App\Models\Kampanye;
-use App\Models\RiwayatDonasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -76,16 +75,6 @@ class DonasiController extends Controller
             
             $kampanye->save();
 
-           
-            RiwayatDonasi::create([
-                'id_pengguna' => $request->id_pengguna,
-                'id_donasi' => $donasi->id,
-                'id_kampanye' => $request->id_kampanye,
-                'jumlah' => $request->jumlah,
-                'pesan' => $request->pesan,
-                'anonim' => $request->anonim ?? false,
-            ]);
-
           
             DB::commit();
 
@@ -126,27 +115,41 @@ class DonasiController extends Controller
     {
         try {
            
-            $riwayat = RiwayatDonasi::where('id_pengguna', $userId)
+            $donations = Donasi::where('id_pengguna', $userId)
                 ->with([
                     'kampanye:id,judul,url_gambar,kategori,status',
-                    'donasi:id,jumlah,status'
                 ])
                 ->orderBy('dibuat_pada', 'desc')
                 ->get();
 
            
-            $totalDonasi = $riwayat->sum('jumlah');
-            $totalKampanye = $riwayat->unique('id_kampanye')->count();
+            $totalAmount = $donations->sum('jumlah');
+            $totalCampaigns = $donations->unique('id_kampanye')->count();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Riwayat donasi berhasil dimuat',
-                'summary' => [
-                    'total_donasi' => $totalDonasi,
-                    'total_kampanye' => $totalKampanye,
-                    'total_transaksi' => $riwayat->count(),
+                'data' => [
+                    'total_donations' => $donations->count(),
+                    'total_amount' => $totalAmount,
+                    'total_campaigns' => $totalCampaigns,
+                    'donations' => $donations->map(function ($donation) {
+                        return [
+                            'id' => $donation->id,
+                            'amount' => $donation->jumlah,
+                            'donor_name' => $donation->anonim ? 'Anonymous' : 'Donor',
+                            'message' => $donation->pesan,
+                            'is_anonymous' => (bool) $donation->anonim,
+                            'created_at' => $donation->dibuat_pada,
+                            'campaign' => [
+                                'id' => $donation->kampanye->id,
+                                'title' => $donation->kampanye->judul,
+                                'image_url' => $donation->kampanye->url_gambar,
+                                'category' => $donation->kampanye->kategori,
+                            ],
+                        ];
+                    }),
                 ],
-                'data' => $riwayat
             ], 200);
 
         } catch (\Exception $e) {
@@ -167,9 +170,9 @@ class DonasiController extends Controller
     {
         try {
             
-            $riwayat = RiwayatDonasi::find($id);
+            $donation = Donasi::find($id);
 
-            if (!$riwayat) {
+            if (!$donation) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Riwayat tidak ditemukan'
@@ -177,7 +180,7 @@ class DonasiController extends Controller
             }
 
            
-            $riwayat->delete();
+            $donation->delete();
 
             return response()->json([
                 'status' => 'success',

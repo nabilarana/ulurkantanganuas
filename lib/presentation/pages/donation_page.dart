@@ -11,10 +11,7 @@ import 'package:ulurkantanganuas/shared/widget/custom_button.dart';
 class DonationPage extends StatefulWidget {
   final Campaign campaign;
 
-  const DonationPage({
-    Key? key,
-    required this.campaign,
-  }) : super(key: key);
+  const DonationPage({Key? key, required this.campaign}) : super(key: key);
 
   @override
   State<DonationPage> createState() => _DonationPageState();
@@ -111,12 +108,15 @@ class _DonationPageState extends State<DonationPage> {
             const SizedBox(height: 16),
             _buildConfirmItem('Campaign', widget.campaign.judul),
             _buildConfirmItem('Nama Donatur', _nameCtrl.text),
-            _buildConfirmItem('Email', _emailCtrl.text.isEmpty ? '-' : _emailCtrl.text),
             _buildConfirmItem(
-              'Nominal',
-              currencyFormatter.format(amount),
+              'Email',
+              _emailCtrl.text.isEmpty ? '-' : _emailCtrl.text,
             ),
-            _buildConfirmItem('Keterangan', _messageCtrl.text.isEmpty ? '-' : _messageCtrl.text),
+            _buildConfirmItem('Nominal', currencyFormatter.format(amount)),
+            _buildConfirmItem(
+              'Keterangan',
+              _messageCtrl.text.isEmpty ? '-' : _messageCtrl.text,
+            ),
             _buildConfirmItem('Status', _isAnonymous ? 'Anonim' : 'Publik'),
             const SizedBox(height: 16),
             Container(
@@ -128,10 +128,7 @@ class _DonationPageState extends State<DonationPage> {
               ),
               child: const Text(
                 '⚠️ Donasi tidak dapat dibatalkan setelah dikonfirmasi.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.orange,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.orange),
               ),
             ),
           ],
@@ -161,10 +158,7 @@ class _DonationPageState extends State<DonationPage> {
         children: [
           SizedBox(
             width: 100,
-            child: Text(
-              label,
-              style: const TextStyle(color: Colors.grey),
-            ),
+            child: Text(label, style: const TextStyle(color: Colors.grey)),
           ),
           const Text(': '),
           Expanded(
@@ -182,9 +176,23 @@ class _DonationPageState extends State<DonationPage> {
     setState(() => _isLoading = true);
 
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getInt('user_id') ?? 0;
+
+      if (userId == 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User ID tidak ditemukan. Silakan login kembali.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
       final amount = double.tryParse(_amountCtrl.text) ?? 0;
 
       final request = DonationRequest(
+        userId: userId,
         campaignId: widget.campaign.id,
         amount: amount,
         donorName: _nameCtrl.text.trim(),
@@ -215,10 +223,7 @@ class _DonationPageState extends State<DonationPage> {
       log('Error creating donation: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -241,18 +246,11 @@ class _DonationPageState extends State<DonationPage> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.check_circle,
-            color: Colors.green,
-            size: 80,
-          ),
+          const Icon(Icons.check_circle, color: Colors.green, size: 80),
           const SizedBox(height: 16),
           const Text(
             'Donasi Berhasil!',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -269,10 +267,7 @@ class _DonationPageState extends State<DonationPage> {
             ),
             child: Column(
               children: [
-                const Text(
-                  'Nominal',
-                  style: TextStyle(color: Colors.grey),
-                ),
+                const Text('Nominal', style: TextStyle(color: Colors.grey)),
                 const SizedBox(height: 4),
                 Text(
                   currencyFormatter.format(amount),
@@ -327,10 +322,7 @@ class _DonationPageState extends State<DonationPage> {
 
               const Text(
                 'Pilih Nominal Cepat',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 12),
               GridView.builder(
@@ -378,10 +370,7 @@ class _DonationPageState extends State<DonationPage> {
 
               const Text(
                 'Atau Nominal Lainnya',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -411,10 +400,7 @@ class _DonationPageState extends State<DonationPage> {
               const SizedBox(height: 4),
               const Text(
                 '💡 Minimal Rp 10.000',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
               const SizedBox(height: 20),
 

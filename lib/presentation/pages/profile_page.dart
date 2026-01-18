@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ulurkantanganuas/data/server/service/api_service.dart';
+import 'package:ulurkantanganuas/data/server/service/session_manager.dart';
 import 'package:ulurkantanganuas/presentation/pages/login_page.dart';
 import 'package:ulurkantanganuas/shared/widget/custom_button.dart';
 
@@ -70,9 +71,9 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       log('Error picking image: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -146,53 +147,68 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() => _isLoading = true);
 
       try {
-        Map<String, String> fields = {
+        // Get user ID from session
+        final userId = await SessionManager.getUserId();
+        if (userId == null) {
+          throw Exception('User ID not found in session');
+        }
+
+        // Step 1: Update profile data (name, phone, password) via PUT
+        Map<String, String> profileFields = {
           'nama': _namaCtrl.text.trim(),
-          'no_telepon': _phoneCtrl.text.trim(),
-          'old_password': _oldPasswordCtrl.text,
-          'new_password': _newPasswordCtrl.text,
+          'telepon': _phoneCtrl.text.trim(),
         };
 
-        final response = await _apiService.postWithFile(
-          'profile/update',
-          fields,
-          _selectedImage,
-          'foto_profil',
+        // Only include password if user entered a new one
+        if (_newPasswordCtrl.text.isNotEmpty) {
+          profileFields['password'] = _newPasswordCtrl.text;
+        }
+
+        final profileResponse = await _apiService.put(
+          'profile/$userId',
+          profileFields,
         );
 
-        if (mounted) {
-          if (response.statusCode == 200) {
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString('user_name', _namaCtrl.text.trim());
-            await prefs.setString('user_phone', _phoneCtrl.text.trim());
+        if (profileResponse.statusCode != 200) {
+          throw Exception('Gagal memperbarui data profil');
+        }
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Profile berhasil diperbarui'),
-                backgroundColor: Colors.green,
-              ),
-            );
+        // Step 2: Update photo if selected
+        if (_selectedImage != null) {
+          final photoResponse = await _apiService.postWithFile(
+            'profile/$userId/photo',
+            {},
+            _selectedImage,
+            'foto_profil',
+          );
 
-            _oldPasswordCtrl.clear();
-            _newPasswordCtrl.clear();
-            _confirmPasswordCtrl.clear();
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Gagal memperbarui profile'),
-                backgroundColor: Colors.red,
-              ),
-            );
+          if (photoResponse.statusCode != 200) {
+            throw Exception('Gagal memperbarui foto profil');
           }
+        }
+
+        if (mounted) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_name', _namaCtrl.text.trim());
+          await prefs.setString('user_phone', _phoneCtrl.text.trim());
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile berhasil diperbarui'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          _oldPasswordCtrl.clear();
+          _newPasswordCtrl.clear();
+          _confirmPasswordCtrl.clear();
+          setState(() => _selectedImage = null);
         }
       } catch (e) {
         log('Error updating profile: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: $e'),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
           );
         }
       } finally {
@@ -216,9 +232,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Ya, Logout'),
           ),
         ],
@@ -247,10 +261,7 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: const Color(0xFF2E7D32),
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          ),
+          IconButton(icon: const Icon(Icons.logout), onPressed: _logout),
         ],
       ),
       body: SingleChildScrollView(
@@ -269,8 +280,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       backgroundImage: _selectedImage != null
                           ? FileImage(_selectedImage!)
                           : _currentPhotoUrl != null
-                              ? NetworkImage(_currentPhotoUrl!)
-                              : null,
+                          ? NetworkImage(_currentPhotoUrl!)
+                          : null,
                       child: _selectedImage == null && _currentPhotoUrl == null
                           ? const Icon(
                               Icons.person,
@@ -302,10 +313,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 12),
               const Text(
                 'Klik untuk mengubah foto',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
               const SizedBox(height: 32),
 
@@ -313,10 +321,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Informasi Pribadi',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 16),
@@ -355,10 +360,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Email tidak dapat diubah',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ),
               const SizedBox(height: 16),
@@ -382,10 +384,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Ganti Password (Opsional)',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 16),
@@ -406,7 +405,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           : Icons.visibility_off_outlined,
                     ),
                     onPressed: () {
-                      setState(() => _obscureOldPassword = !_obscureOldPassword);
+                      setState(
+                        () => _obscureOldPassword = !_obscureOldPassword,
+                      );
                     },
                   ),
                 ),
@@ -429,7 +430,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           : Icons.visibility_off_outlined,
                     ),
                     onPressed: () {
-                      setState(() => _obscureNewPassword = !_obscureNewPassword);
+                      setState(
+                        () => _obscureNewPassword = !_obscureNewPassword,
+                      );
                     },
                   ),
                 ),
@@ -452,8 +455,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           : Icons.visibility_off_outlined,
                     ),
                     onPressed: () {
-                      setState(() =>
-                          _obscureConfirmPassword = !_obscureConfirmPassword);
+                      setState(
+                        () =>
+                            _obscureConfirmPassword = !_obscureConfirmPassword,
+                      );
                     },
                   ),
                 ),

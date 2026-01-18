@@ -11,7 +11,7 @@ class AuthRepository {
 
   Future<LoginResponse> login(LoginRequest request) async {
     try {
-      final response = await apiService.post('auth/login', request.toMap());
+      final response = await apiService.post('login', request.toMap());
 
       if (response.statusCode == 200) {
         final responseData = LoginResponse.fromJson(response.body);
@@ -38,8 +38,8 @@ class AuthRepository {
         return errorResponse;
       }
     } catch (e) {
-      log('Error register: $e');
-      throw Exception('Error register: $e');
+      log('[auth] Error register: $e');
+      throw Exception('[auth] Error register: $e');
     }
   }
 

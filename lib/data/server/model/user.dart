@@ -6,8 +6,8 @@ class User {
   final String email;
   final String? noTelepon;
   final String? fotoProfil;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   User({
     required this.id,
@@ -15,8 +15,8 @@ class User {
     required this.email,
     this.noTelepon,
     this.fotoProfil,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory User.fromJson(String str) => User.fromMap(json.decode(str));
@@ -24,22 +24,27 @@ class User {
   String toJson() => json.encode(toMap());
 
   factory User.fromMap(Map<String, dynamic> json) => User(
-    id: json["id"],
-    nama: json["nama"],
-    email: json["email"],
-    noTelepon: json["no_telepon"],
+    id: json["id"] ?? 0,
+    nama: json["nama"] ?? "",
+    email: json["email"] ?? "",
+    noTelepon: json["telepon"],
     fotoProfil: json["foto_profil"],
-    createdAt: DateTime.parse(json["created_at"]),
-    updatedAt: DateTime.parse(json["updated_at"]),
+
+    createdAt: json["created_at"] != null
+        ? DateTime.parse(json["created_at"])
+        : null,
+    updatedAt: json["updated_at"] != null
+        ? DateTime.parse(json["updated_at"])
+        : null,
   );
 
   Map<String, dynamic> toMap() => {
     "id": id,
     "nama": nama,
     "email": email,
-    "no_telepon": noTelepon,
+    "telepon": noTelepon,
     "foto_profil": fotoProfil,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
   };
 }

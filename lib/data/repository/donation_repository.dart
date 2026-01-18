@@ -11,7 +11,8 @@ class DonationRepository {
 
   Future<GetAllDonationResponse> getUserDonations() async {
     try {
-      final response = await apiService.get('donations/user');
+      // Get user ID from SharedPreferences or auth context
+      final response = await apiService.get('donation-history/1');
 
       if (response.statusCode == 200) {
         final responseData = GetAllDonationResponse.fromJson(response.body);
@@ -28,14 +29,7 @@ class DonationRepository {
 
   Future<DonationResponse> createDonation(DonationRequest request) async {
     try {
-      final response = await apiService.post('donations', {
-        'campaign_id': request.campaignId,
-        'amount': request.amount,
-        'donor_name': request.donorName,
-        'donor_email': request.donorEmail ?? '',
-        'message': request.message ?? '',
-        'is_anonymous': request.isAnonymous,
-      });
+      final response = await apiService.post('donations', request.toMap());
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = DonationResponse.fromJson(response.body);
@@ -52,7 +46,7 @@ class DonationRepository {
 
   Future<bool> deleteDonation(int id) async {
     try {
-      final response = await apiService.delete('donations/$id');
+      final response = await apiService.delete('donation-history/$id');
       return response.statusCode == 200;
     } catch (e) {
       log('Error deleting donation: $e');

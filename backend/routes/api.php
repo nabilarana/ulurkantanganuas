@@ -3,8 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CampaignController;
-use App\Http\Controllers\DonationController;
+use App\Http\Controllers\KampanyeController;
+use App\Http\Controllers\DonasiController;
 use App\Http\Controllers\ProfileController;
 
 Route::get('/test', function () {
@@ -15,15 +15,15 @@ Route::get('/test', function () {
     ]);
 });
 
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/campaigns', [CampaignController::class, 'index']);
-Route::get('/campaigns/{id}', [CampaignController::class, 'show']);
+Route::get('/campaigns', [KampanyeController::class, 'index']);
+Route::get('/campaigns/{id}', [KampanyeController::class, 'show']);
 
-Route::post('/donations', [DonationController::class, 'store']);
-Route::get('/donation-history/{userId}', [DonationController::class, 'getHistory']);
-Route::delete('/donation-history/{id}', [DonationController::class, 'deleteHistory']);
+Route::post('/donations', [DonasiController::class, 'store']);
+Route::get('/donation-history/{userId}', [DonasiController::class, 'getHistory']);
+Route::delete('/donation-history/{id}', [DonasiController::class, 'deleteHistory']);
 
 Route::get('/profile/{userId}', [ProfileController::class, 'show']);
 Route::put('/profile/{userId}', [ProfileController::class, 'update']);

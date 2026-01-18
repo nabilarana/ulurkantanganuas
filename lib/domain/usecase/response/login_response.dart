@@ -27,13 +27,23 @@ class LoginResponse {
 }
 
 class LoginData {
-  final String token;
-  final User user;
+  final String? token;
+  final User? user;
 
-  LoginData({required this.token, required this.user});
+  LoginData({this.token, this.user});
 
-  factory LoginData.fromMap(Map<String, dynamic> json) =>
-      LoginData(token: json["token"], user: User.fromMap(json["user"]));
+  factory LoginData.fromMap(Map<String, dynamic> json) {
+    return LoginData(
+      token: json["token"], // This can now safely return null
 
-  Map<String, dynamic> toMap() => {"token": token, "user": user.toMap()};
+      user: json["user"] != null
+          ? User.fromMap(json["user"])
+          : (json["id"] != null ? User.fromMap(json) : null),
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+    "token": token,
+    "user": user?.toMap(), // Handle nullable user
+  };
 }
