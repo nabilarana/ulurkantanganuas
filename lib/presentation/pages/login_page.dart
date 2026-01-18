@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
       if (response.status == 'success' && response.data != null) {
         await SessionManager.saveSession(
           response.data!.user,
-          response.data!.token,
+          response.data!.token ?? '',
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
