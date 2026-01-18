@@ -50,6 +50,8 @@ class _RegisterPageState extends State<RegisterPage> {
         noTelepon: _teleponController.text.trim(),
       );
 
+      print('Register Request: ${request.toMap()}');
+
       final response = await _authRepository.register(request);
 
       if (!mounted) return;
