@@ -19,7 +19,7 @@ class RegisterRequest {
       'email': email,
       'password': password,
       'confirm_password': confirmPasswor,
-      'no_telepon': noTelepon ?? '',
+      'telepon': noTelepon ?? '',
     };
   }
 }
