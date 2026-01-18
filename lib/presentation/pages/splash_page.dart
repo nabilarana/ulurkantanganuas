@@ -18,79 +18,88 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _checkSession() async {
-  await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
-  if (!mounted) return;
+    if (!mounted) return;
 
-  final token = await SessionManager.getToken();
-  final isLoggedIn = token != null && token.isNotEmpty;
+    final token = await SessionManager.getToken();
+    final isLoggedIn = token != null && token.isNotEmpty;
 
-  if (isLoggedIn) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
-    );
-  } else {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-    );
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.green,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.volunteer_activism,
-                size: 60,
-                color: Colors.green,
-              ),
-            ),
-            const SizedBox(height: 24),
+      body: SafeArea(child: _buildSplashContent()),
+    );
+  }
 
-            const Text(
-              'Ulurkan Tangan',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            const Text(
-              'Platform Donasi Terpercaya',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white70,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
+  Widget _buildSplashContent() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildLogo(),
+          const SizedBox(height: 24),
+          _buildAppTitle(),
+          const SizedBox(height: 8),
+          _buildSubtitle(),
+        ],
       ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: const Icon(
+        Icons.volunteer_activism,
+        size: 60,
+        color: Colors.green,
+      ),
+    );
+  }
+
+  Widget _buildAppTitle() {
+    return const Text(
+      'Ulurkan Tangan',
+      style: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  Widget _buildSubtitle() {
+    return const Text(
+      'Platform Donasi Terpercaya',
+      style: TextStyle(fontSize: 14, color: Colors.white70, letterSpacing: 0.5),
     );
   }
 }
