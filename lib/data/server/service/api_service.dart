@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String baseUrl = 'http://127.0.0.1:8000/api';
+  // final String baseUrl = 'http://127.0.0.1:8000/api';
+  final String baseUrl = 'http://192.168.18.169:8000/api';
 
   Future<http.Response> get(String endpoint) async {
     final url = Uri.parse('$baseUrl/$endpoint');
