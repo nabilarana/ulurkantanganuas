@@ -9,10 +9,9 @@ class DonationRepository {
 
   DonationRepository(this.apiService);
 
-  Future<GetAllDonationResponse> getUserDonations() async {
+  Future<GetAllDonationResponse> getUserDonations(int userId) async {
     try {
-      // Get user ID from SharedPreferences or auth context
-      final response = await apiService.get('donation-history/1');
+      final response = await apiService.get('donation-history/$userId');
 
       if (response.statusCode == 200) {
         final responseData = GetAllDonationResponse.fromJson(response.body);
